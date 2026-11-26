@@ -1,0 +1,15 @@
+# dependencies
+/node_modules
+
+# npm/yarn logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# misc
+.DS_Store
+*.tsbuildinfo
+
+# android/ and ios/ each have their own generated .gitignore covering their
+# native build artifacts (.gradle/, build/, Pods/, DerivedData, etc.) — not
+# duplicated here.

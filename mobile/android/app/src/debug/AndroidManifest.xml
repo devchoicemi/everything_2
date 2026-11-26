@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Debug-only manifest override (Android's build merges this into the debug
+  variant only — release builds never get this). Allows plain-HTTP traffic
+  so the app can load a local dev server (http://10.0.2.2:3000) while
+  developing. Production builds must point capacitor.config.ts's server.url
+  at a real HTTPS deployment, where this override doesn't apply.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:usesCleartextTraffic="true" />
+</manifest>

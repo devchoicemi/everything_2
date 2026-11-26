@@ -1,0 +1,72 @@
+{
+	email {$ACME_EMAIL}
+}
+
+# www goes to the main address
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	reverse_proxy app:3000
+}
+
+# The restaurant partner site is its own app. Its pages come from the `restaurant` container; its
+# /api/* calls go to the same ChoiceMi backend as the main site, so sign-in cookies stay on this address.
+restaurant.{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(self), microphone=(), geolocation=()"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy app:3000
+	}
+
+	handle {
+		reverse_proxy restaurant:3200
+	}
+}
+
+# The staff site (ChoiceMi's own team) is its own app too, same arrangement: its pages come from the
+# `admin` container and its /api/* calls go to the ChoiceMi backend, so sign-in cookies stay on this address.
+# It is never framed and never indexed.
+admin.{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		X-Robots-Tag "noindex, nofollow"
+		Referrer-Policy "same-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Cache-Control "no-store"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy app:3000
+	}
+
+	handle {
+		reverse_proxy admin:3300
+	}
+}

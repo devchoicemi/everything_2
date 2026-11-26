@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1B0A3D" />
+<title>ChoiceMi — offline</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: max(2rem, env(safe-area-inset-top)) 1.75rem max(2rem, env(safe-area-inset-bottom));
+    background: linear-gradient(160deg, #1b0a3d 0%, #3b0f6b 55%, #7a1559 100%);
+    color: #fff; text-align: center;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .logo { width: 220px; max-width: 70%; height: auto; margin-bottom: 26px; filter: drop-shadow(0 0 14px rgba(255,255,255,.3)); }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+  p { margin-top: 12px; max-width: 20rem; font-size: 16px; line-height: 1.45; color: rgba(255,255,255,.82); }
+  button {
+    margin-top: 34px; width: 100%; max-width: 340px; padding: 16px 24px;
+    border: 0; border-radius: 999px; background: #fff; color: #3b0f6b;
+    font-size: 16px; font-weight: 700; transition: transform .1s;
+  }
+  button:active { transform: scale(.97); }
+  .status { margin-top: 18px; min-height: 18px; font-size: 13px; color: rgba(255,255,255,.6); }
+</style>
+</head>
+<body>
+  <img class="logo" src="logo.webp" alt="ChoiceMi">
+  <h1>You're offline</h1>
+  <p>ChoiceMi needs an internet connection to load your matches and profiles. Check your Wi-Fi or mobile data and try again.</p>
+  <button id="retry" type="button">Try again</button>
+  <div class="status" id="status"></div>
+
+<script>
+  // Keep in sync with server.url in capacitor.config.ts (CHOICEMI_WEB_URL at build time).
+  var TARGET = 'https://web-seven-jet-19.vercel.app';
+  var status = document.getElementById('status');
+  var busy = false;
+
+  function retry() {
+    if (busy) return;
+    busy = true;
+    status.textContent = 'Checking connection…';
+    // A real request, not navigator.onLine — that flag says "connected to a
+    // network", not "the site is reachable".
+    fetch(TARGET + '/manifest.json?ts=' + Date.now(), { mode: 'no-cors', cache: 'no-store' })
+      .then(function () { window.location.replace(TARGET); })
+      .catch(function () {
+        busy = false;
+        status.textContent = 'Still no connection.';
+      });
+  }
+
+  document.getElementById('retry').addEventListener('click', retry);
+  window.addEventListener('online', retry);
+</script>
+</body>
+</html>

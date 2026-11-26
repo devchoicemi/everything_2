@@ -1,0 +1,30 @@
+{
+  "name": "choicemi-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ChoiceMi mobile app — Capacitor native wrap of web/ (see root README: \"PWA / Play Store wrap of web/\")",
+  "scripts": {
+    "sync": "npx cap sync",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios",
+    "run:android": "npx cap run android",
+    "run:ios": "npx cap run ios",
+    "assets": "npx @capacitor/assets generate"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "typescript": "^7.0.2"
+  }
+}

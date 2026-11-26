@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ChoiceMi</string>
+    <string name="title_activity_main">ChoiceMi</string>
+    <string name="package_name">fi.choicemi.app</string>
+    <string name="custom_url_scheme">fi.choicemi.app</string>
+</resources>

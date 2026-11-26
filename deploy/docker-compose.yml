@@ -1,0 +1,129 @@
+# Runs on the UpCloud server in /opt/choicemi.
+#   app        : the ChoiceMi web app and API (image built by GitHub Actions)
+#   restaurant : the restaurant partner site (landing page and portal), restaurant.choicemi.com.
+#                It has no backend of its own: caddy sends its /api/* calls to `app`.
+#   admin      : the staff site (admin.choicemi.com). Same arrangement: no backend of its own.
+#   db    : PostgreSQL (accounts, sessions, everything the API stores)
+#   caddy : HTTPS front door, gets and renews Let's Encrypt certificates by itself
+#
+# Only caddy publishes ports (80, 443). The app and the database are reachable
+# only inside the compose network. To move to UpCloud Managed PostgreSQL later,
+# set DATABASE_URL in .env (it overrides the one below) and delete the db service.
+
+services:
+  app:
+    image: ${IMAGE:-choicemi-web:local}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgres://choicemi:${POSTGRES_PASSWORD}@db:5432/choicemi}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app_data:/app/.data
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  restaurant:
+    image: ${RESTAURANT_IMAGE:-choicemi-restaurant:local}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    expose:
+      - "3200"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3200/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  admin:
+    image: ${ADMIN_IMAGE:-choicemi-admin:local}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    expose:
+      - "3300"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3300/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: choicemi
+      POSTGRES_DB: choicemi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U choicemi -d choicemi"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+      restaurant:
+        condition: service_healthy
+      admin:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  app_data:
+  pg_data:
+  caddy_data:
+  caddy_config:

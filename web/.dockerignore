@@ -1,0 +1,14 @@
+node_modules
+.next
+.next-standalone
+.data
+.env*
+!.env.example
+.git
+npm-debug.log*
+docs
+public/sw.js
+public/swe-worker-*.js
+public/workbox-*.js
+Dockerfile
+.dockerignore

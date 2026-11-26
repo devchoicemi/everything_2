@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --grad: linear-gradient(90deg, #6d28d9 0%, #c026d3 55%, #ec4899 100%);
+}
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  @apply bg-paper font-sans text-[15px] leading-relaxed text-ink-900 antialiased;
+}
+::selection { background: #d6c2ff; color: #2e0a66; }
+button, input, select, textarea { font-family: inherit; }
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[14px] font-semibold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary { background-image: var(--grad); @apply text-white shadow-lift hover:brightness-110; }
+  .btn-ink { @apply bg-ink-900 text-white hover:bg-ink-800; }
+  .btn-secondary { @apply border border-ink-200 bg-white text-ink-800 hover:border-brand-300 hover:text-brand-800; }
+  .btn-ghost { @apply text-ink-600 hover:bg-ink-100 hover:text-ink-900; }
+  .btn-danger { @apply border border-danger/30 bg-white text-danger hover:bg-danger-50; }
+  .btn-sm { @apply px-3.5 py-1.5 text-[13px]; }
+  .btn-lg { @apply px-7 py-3.5 text-[15.5px]; }
+
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-[15px] text-ink-900 placeholder:text-ink-300 transition focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100 disabled:bg-ink-100 disabled:text-ink-500;
+  }
+  .label { @apply mb-1.5 block text-[12.5px] font-semibold text-ink-700; }
+  .card { @apply rounded-2xl border border-ink-200/70 bg-white shadow-card; }
+  .eyebrow { @apply text-[11.5px] font-bold uppercase tracking-[0.14em] text-brand-700; }
+}
+
+.text-gradient { background-image: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cm-rise { animation: rise .5s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .cm-rise { animation: none; } }
